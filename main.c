@@ -52,9 +52,12 @@ static const int BOARD_SIZE = 8;
 /**
 * a structure representing one cell
 */
-typedef BOOL t_cell;
+typedef bool t_cell;
 
-typedef t_cell[BOARD_SIZE][BOARD_SIZE] t_board;
+typedef struct {
+	t_cell cells[BOARD_SIZE][BOARD_SIZE];
+} t_board;
+
 
 /**
 * representation of the board
@@ -75,51 +78,56 @@ bool isRunning = false;
 char last_ch; //naposledy precteny znak
 char char_cnt = 0;
 
-t_board startPositions []  =  {  
-                                {
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0}
-                                },
-                                {
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1}
-                                },
-                                {
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {1,1,1,1,1,1,1,1},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0},
-                                  {0,0,0,0,0,0,0,0}
-                                },
-                              };
+t_board startPositions[] =
+{
+	{
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0
+
+	},{
+
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1,
+			 1,1,1,1,1,1,1,1
+
+	},{
+
+			1,1,1,1,1,1,1,1,
+			1,1,1,1,1,1,1,1,
+			1,1,1,1,1,1,1,1,
+			1,1,1,1,1,1,1,1,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0
+	}
+};
 
 
 
 t_board hello = {
-                    {0,1,0,1,0,1,1,0},
-                    {0,1,0,1,0,1,1,0},
-                    {0,1,0,1,0,1,1,0},
-                    {0,1,1,1,0,1,1,0},
-                    {0,1,1,1,0,1,1,0},
-                    {0,1,0,1,0,1,1,0},
-                    {0,1,0,1,0,1,1,0},
-                    {0,1,0,1,0,1,1,0}
-                };
+	{	 0,1,0,1,0,1,1,0,
+		 0,1,0,1,0,1,1,0 ,
+		 0,1,0,1,0,1,1,0 ,
+		 0,1,1,1,0,1,1,0 ,
+		 0,1,1,1,0,1,1,0 ,
+		 0,1,0,1,0,1,1,0 ,
+		 0,1,0,1,0,1,1,0 ,
+		 0,1,0,1,0,1,1,0
+	}
+};
+
 
 void computeNextStep(){
 
@@ -130,7 +138,7 @@ void setCellsStart(int index){
   if(index == 0){
       newBoard = &hello;
   } else if(index > 3) {
-    fprintf(stderr, "Index too big, max is 3, current was %d\n",index); 
+    fprintf(stderr, "Index too big, max is 3, current was %d\n",index);
     return;
   } else {
     newBoard = &startPositions[index -1];
@@ -186,7 +194,7 @@ int keyboard_idle()
       char_cnt++;
     }
   }
-  
+
   return 0;
 }
 
@@ -206,19 +214,17 @@ int main(void)
   LCD_init();
   LCD_clear();
 
-  setCellsStart(0); 
+  setCellsStart(0);
 
   CCTL0 = CCIE // enable timer interrupt
   CCR0 = 0x4000; // next interrupt after about half a second
 
-  TACL = TASSEL_1 + MC_2;  // ACLK f = 32786 Hz = 0x8000 Hz 
+  TACL = TASSEL_1 + MC_2;  // ACLK f = 32786 Hz = 0x8000 Hz
 
   while (1)
   {
     keyboard_idle();  // obsluha klavesnice
     terminal_idle();  // obsluha terminalu
     actualizeDisplay();
-  }         
+  }
 }
-
-

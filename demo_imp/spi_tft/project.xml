@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputprefix="lcd">
+
+    <!--  Project description -->
+    <name>Řízení TFT displeje z mikrokontroleru</name>
+    <author>Michal Bidlo</author>
+    <authoremail>bidlom@fit.vutbr.cz</authoremail>
+    <revision>20102001</revision>
+    <description>Aplikace demonstruje zakladni rizeni TFT displeje z MSP430 pres rozhrani SPI nakonfigurovane modulem UCB0</description>
+ 
+    <!--  MCU part -->
+    <mcu>
+        <file>main.c</file>
+    </mcu>
+
+    <!-- FPGA part -->
+    <fpga use="apps/demo/display/project.xml" />
+
+</project>

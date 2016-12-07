@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/FITkit/!svn/ver/299/trunk/apps/demo_msp/led/build
+END
+testled_f1xx.hex
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/FITkit/!svn/ver/299/trunk/apps/demo_msp/led/build/testled_f1xx.hex
+END
+testled_f2xx.hex
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/FITkit/!svn/ver/299/trunk/apps/demo_msp/led/build/testled_f2xx.hex
+END

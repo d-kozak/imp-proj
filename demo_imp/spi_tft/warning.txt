@@ -1,0 +1,1 @@
+POZOR, overeni tohoto projektu neni mozne bez korektniho pripojeni TFT ILI9320 k FITkitu pres rozhrani SPI. Priklad ma demonstrovat zejmena princip seriove komunikace s vyuzitim modulu MSP430 USCI_B0.

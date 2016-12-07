@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputprefix="2bram">
+
+    <!--  Project description -->
+    <name>Adresace BRAM pamětí v FPGA</name>
+    <author>Michal Bidlo</author>
+    <authoremail>bidlom@fit.vutbr.cz</authoremail>
+    <revision>20091010</revision>
+    <description>Aplikace demonstruje využití dvou blokových pamětí uvnitř FPGA a jejich adresování z MCU prostřednictvím dekodéru SPI</description>
+
+    <!--  MCU part -->
+    <mcu>
+        <file>main.c</file>
+    </mcu>
+
+    <!-- FPGA part -->
+    <fpga>
+        <file>2bram.vhd</file>
+    </fpga>
+
+</project>

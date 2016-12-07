@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputprefix="kblcd">
+
+    <!--  Project description -->
+    <name>Řízení klávesnice a LCD z MCU</name>
+    <author>Michal Bidlo</author>
+    <authoremail>bidlom@fit.vutbr.cz</authoremail>
+    <revision>20121014</revision>
+    <description>Psaní na LCD pomocí klávesnice FITkitu řízené z MSP430.</description>
+
+    <!--  MCU part -->
+    <mcu>
+        <include>mcu/libs/keyboard/package.xml</include>
+        <include>mcu/libs/lcd/package.xml</include>
+        <file>main.c</file>
+    </mcu>
+
+    <!-- FPGA part -->
+    <fpga>
+        <include>fpga/ctrls/keyboard/package.xml</include>
+        <include>fpga/ctrls/lcd/package.xml</include>
+        <file>top_level.vhd</file>
+    </fpga>
+
+</project>

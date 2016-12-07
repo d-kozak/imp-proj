@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputprefix="kblcd">
+
+    <!--  Project description -->
+    <name>IMP 2016 - Hra life</name>
+    <author>David Kozak</author>
+    <authoremail>xkozak15@stud.fit.vutbr.cz</authoremail>
+    <revision>20161212</revision>
+    <description>Hra Life (celulární automat) na maticovém displeji</description>
+
+    <!--  MCU part -->
+    <mcu>
+        <include>mcu/libs/keyboard/package.xml</include>
+        <include>mcu/libs/lcd/package.xml</include>
+        <file>main.c</file>
+    </mcu>
+
+    <!-- FPGA part -->
+    <fpga>
+        <include>fpga/ctrls/keyboard/package.xml</include>
+        <include>fpga/ctrls/lcd/package.xml</include>
+        <file>top_level.vhd</file>
+    </fpga>
+
+</project>

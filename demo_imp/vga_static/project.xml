@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project fitkitversion="1.0" outputprefix="tetris">
+    <!--  Project description -->
+    <name>Jednoduche VGA demo</name>
+    <author>Michal Bidlo</author>
+    <authoremail>bidlomk@fit.vutbr.cz</authoremail>
+    <revision>20121017</revision>
+    <description>Ukazka vykresleni grafiky z MSP430 pres VGA</description>
+
+    <!--  MCU part --> 
+    <mcu>
+        <file>main.c</file>
+    </mcu>
+
+    <!-- FPGA part -->
+    <fpga architecture="pc">
+        <include>fpga/ctrls/spi/package.xml</include>
+        <include>fpga/ctrls/vga/package.xml</include>
+
+        <file>vga_top.vhd</file>
+    </fpga>
+</project>

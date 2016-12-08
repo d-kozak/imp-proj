@@ -53,6 +53,14 @@
 
 #define BOARD_SIZE 8
 
+static const char * welcomeMsg = "Welcome :)";
+static const char * title1 = "E1 - Oscilators";
+static const char * title2 = "E2 - Chaos";
+static const char * title3 = "E3 - Glider";
+static const char * set8Neighbour = "8 neighbors mode";
+static const char * set9Neighbour = "9 neighbors mode";
+
+
 /**
 * structure representing one cell
 */
@@ -66,61 +74,13 @@ typedef struct {
 /**
 * representation of the board
 */
-t_board cells;
+t_board currentBoard;
 
 /**
 * temporary storage used while calculating the next state
+* also serves as 'hello'
 */
-t_board tmp;
-
-
-/**
-* true = game is running, false = debugging mode
-*/
-bool isRunning = false;
-
-char last_ch; //naposledy precteny znak
-char char_cnt = 0;
-
-t_board startPositions[] =
-{
-	{{
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0
-
-	}},{{
-
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1,
-			 1,1,1,1,1,1,1,1
-
-	}},{{
-
-			1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,
-			1,1,1,1,1,1,1,1,
-			0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0
-	}}
-};
-
-
-
-t_board hello = {
+t_board tmp = {
 	{	 0,1,0,1,0,1,1,0,
 		 0,1,0,1,0,1,1,0 ,
 		 0,1,0,1,0,1,1,0 ,
@@ -133,28 +93,120 @@ t_board hello = {
 };
 
 
-void computeNextStep(){
+/**
+* true = game is running, false = debugging mode
+*/
+bool isRunning = false;
 
+bool eightNeighbourMode = false;
+
+unsigned char currentCol = 254;
+
+char last_ch; //naposledy precteny znak
+
+t_board startPositions[] =
+{
+	{{
+		  0,0,0,0,0,0,0,0,
+		  0,0,1,0,0,0,0,0,
+		  0,0,1,0,0,0,0,0,
+		  0,0,1,0,0,0,0,0,
+		  0,0,0,0,0,0,0,0,
+		  0,0,0,0,1,1,1,0,
+		  0,0,0,1,1,1,0,0,
+      0,0,0,0,0,0,0,0
+
+	}},{{
+
+      0,0,0,0,0,0,1,1,
+      0,1,1,0,0,0,1,1,
+      0,1,1,0,0,0,0,0,
+      0,0,0,1,1,0,0,0,
+      0,0,0,1,1,0,0,0,
+      0,0,0,0,0,0,0,0,
+      0,0,0,0,1,1,1,0,
+      0,0,0,0,0,0,0,0
+
+	}},{{
+
+      0,0,1,0,0,0,0,0,
+      1,0,1,0,0,0,0,0,
+      0,1,1,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0
+	}}
+};
+
+
+t_cell getCell(int row,int col){
+  if(row < 0)
+    row = BOARD_SIZE - 1;
+  else if(row >= BOARD_SIZE)
+    row = 0;
+
+  if(col < 0)
+    col = BOARD_SIZE - 1;
+  else if(col >= BOARD_SIZE)
+    col = 0;
+
+    return currentBoard.cells[row][col];
+}
+
+int countAliveNeighbors(int row,int col){
+  int i,j,count = 0;
+  for(i = row - 1 ; i < row + 2 ;   i++) {
+    for(j = col - 1 ; j < col + 2  ; j++ ) {
+        if(eightNeighbourMode && i == row && j == col)
+          continue;
+        if(getCell(i,j))
+          count++;
+    }
+  }
+  return count;
+}
+
+void computeNextStep(){
+  int i,j,count;
+  for(i = 0; i < BOARD_SIZE ; i++){
+    for(j = 0; j < BOARD_SIZE ; j++){
+        t_cell current_cell = currentBoard.cells[i][j];
+        if(current_cell){
+          // is alive
+          count = countAliveNeighbors(i,j);
+          if(count < 2)
+            tmp.cells[i][j] = false;
+          else if(count == 2 || count == 3)
+            tmp.cells[i][j] = true;
+          else
+            tmp.cells[i][j] = false;
+        } else {
+          // is dead
+          if(countAliveNeighbors(i,j) == 3)
+            tmp.cells[i][j] = true;
+          else
+            tmp.cells[i][j] = false;
+        }
+    }
+  }
+
+  memcpy(&currentBoard,&tmp, sizeof(t_board));
 }
 
 void setCellsStart(int index){
   t_board * newBoard = NULL;
   if(index == 0){
-      newBoard = &hello;
+      newBoard = &tmp;
   } else if(index > 3) {
     term_send_str("Index too big, max is 3");
     return;
   } else {
     newBoard = &startPositions[index -1];
   }
-  memcpy(&cells,newBoard,sizeof(t_board));
+  memcpy(&currentBoard,newBoard,sizeof(t_board));
 }
-
-
-void actualizeDisplay(){
-
-}
-
 
 void print_user_help(void) { }
 
@@ -176,35 +228,89 @@ int keyboard_idle()
     last_ch = ch;
     if (ch != 0) // pokud byla stisknuta klavesa
     {
-
       switch(ch){
-        case '0': isRunning = ~isRunning; break;
-        case '#': if(!isRunning) computeNextStep(); break;
-        case '1': isRunning = false; setCellsStart(1); break;
-        case '2': isRunning = false; setCellsStart(2); break;
-        case '3': isRunning = false; setCellsStart(3); break;
+        case '0':  isRunning = !isRunning; break;
+        case '#':  if(isRunning) isRunning = false; computeNextStep(); break;
+        case '1':  LCD_clear(); LCD_append_string(title1); isRunning = false; setCellsStart(1); break;
+        case '2':  LCD_clear(); LCD_append_string(title2); isRunning = false; setCellsStart(2); break;
+        case '3':  LCD_clear(); LCD_append_string(title3); isRunning = false; setCellsStart(3); break;
+        case 'C':  LCD_clear();  break;
+        case '8':  LCD_clear(); LCD_append_string(set8Neighbour); eightNeighbourMode = true; break;
+        case '9':  LCD_clear(); LCD_append_string(set9Neighbour); eightNeighbourMode = false; break;
         default:
             //nothing...
               break;
+        }
       }
-
-
-      ////old
-      if (char_cnt > 15) {
-         LCD_clear();
-         char_cnt = 0;
-      }
-      LCD_append_char(ch);
-      char_cnt++;
-    }
   }
 
   return 0;
 }
 
+unsigned char rol(unsigned char num)
+{
+  return ((num << 1) | (num >> (7)));
+}
+
+
+void danceOnTheDiagonal(unsigned char column){
+  switch(column){
+    case 0: P4OUT = 1; P1OUT = 0; break;
+    case 1: P4OUT = 2; P1OUT = 0; break;
+    case 2: P4OUT = 4; P1OUT = 0; break;
+    case 3: P4OUT = 8; P1OUT = 0; break;
+    case 4: P4OUT = 16; P1OUT = 0; break;
+    case 5: P4OUT = 32; P1OUT = 0; break;
+    case 6: P4OUT = 0; P1OUT = 16; break;
+    case 7: P6OUT = 0; P1OUT = 32; break;
+    default:
+     term_send_str("error, default in switch in preparePinsForCol");
+     term_send_num(currentCol);
+     term_send_str_crlf("");
+     return;
+  }
+}
+
+void preparePinsForCol(unsigned char column){
+  int i;
+  unsigned char p4 = 0;
+  unsigned char p1 = 0;
+  for( i = 0 ; i < 6 ; i++)
+    p4 |= (currentBoard.cells[i][column] << i);
+  p1 |= (currentBoard.cells[6][column] << 4);
+  p1 |= (currentBoard.cells[7][column] << 5);
+  P4OUT = p4;
+  P1OUT = p1;
+}
+
+void lightCol(){
+
+  switch (currentCol) {
+    case 254: preparePinsForCol(0); break;
+    case 253: preparePinsForCol(1); break;
+    case 251: preparePinsForCol(2); break;
+    case 247: preparePinsForCol(3); break;
+    case 239: preparePinsForCol(4); break;
+    case 223: preparePinsForCol(5); break;
+    case 191: preparePinsForCol(6); break;
+    case 127: preparePinsForCol(7); break;
+    default:
+     term_send_str("error, default in switch in lightRow");
+     term_send_num(currentCol);
+     term_send_str_crlf("");
+     return;
+  }
+  P6OUT = currentCol;
+}
+
+void lightItAll(){
+  P6OUT = 0;
+  P4OUT = 63;
+  P1OUT = 48;
+}
+
 int main(void)
 {
-  char_cnt = 0;
   last_ch = 0;
 
   initialize_hardware();
@@ -213,29 +319,39 @@ int main(void)
   LCD_init();
   LCD_clear();
 
-  set_led_d5(1);
-
   setCellsStart(0);
 
   CCTL0 = CCIE; // enable timer interrupt
-  CCR0 = 0x4000; // next interrupt after about half a second
+  CCR0 = 0x0040; // next interrupt after about half a second
 
   TACTL = TASSEL_1 + MC_2;  // ACLK f = 32786 Hz = 0x8000 Hz
 
-  term_send_str("Before loop");
+  // all pins in port 6 are used
+  P6DIR = 255;
+
+  // pinns 0-5 in port 4 are used for rows 0 to 5
+  P4DIR |= 63;
+
+  // pins 4 and 5 in port 1 are used for row 6 and 7
+  P1DIR |= 48;
+
+  lightItAll();
+  LCD_append_string(welcomeMsg);
   while (1)
   {
     keyboard_idle();  // obsluha klavesnice
     terminal_idle();  // obsluha terminalu
-    actualizeDisplay();
+
+    delay_ms(100);
+    if(isRunning){
+      computeNextStep();
+    }
   }
 }
 
 interrupt (TIMERA0_VECTOR) Timer_A (void)
 {
-  // term_send_str("interrupt"); why this does not work? (takes too long?)
-  if(isRunning)
-    computeNextStep();
-  CCR0 += 0x4000; // plan next interrupt
-  flip_led_d5();
+  currentCol = rol(currentCol);
+  lightCol();
+  CCR0 += 0x0040; // plan next interrupt
 }

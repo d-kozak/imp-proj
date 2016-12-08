@@ -1,1 +1,0 @@
-POZOR, pro aktivaci rozhrani VGA je treba na FITkitu spojit propojku J6, jinak se na monitoru nic nezobrazi.

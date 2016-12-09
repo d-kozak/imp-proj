@@ -49,7 +49,7 @@ unicode,linkcolor=black]{hyperref}
 \newpage
 
 \section{Úvod}
-Tato dokumentace popisuje projekt do předmětu IMP, který v roce 2016 vytvořil student třetího ročníku FIT VUT David Kozák. V rámci projektu byl navržen a naimplementován projekt pro FITKIT\ref{fitkit} pracující s maticovým displayem modelujícím základní pravidla hry Life\ref{game-of-life}. Hlavním úkolem v tomto projektu vytvořit řídící program pro mikrokontrolér msp430, který je součástí fitkitu\ref{msp430}.
+Tato dokumentace popisuje projekt do předmětu IMP, který v roce 2016 vytvořil student třetího ročníku FIT VUT David Kozák. V rámci projektu byl navržen a naimplementován projekt pro FITKIT\ref{fitkit} pracující s maticovým displayem modelujícím základní pravidla hry Life\ref{game-of-life}. Hlavním úkolem v tomto projektu vytvořit řídící program pro mikrokontrolér msp430\ref{msp430}, který je součástí fitkitu.
 \section{Popis ovládání a implementace}
 Tato sekce tvoří jádro celé dokumentace, čtenář zde nalezne jak popis ovládání výsledné aplikace, tak i důležité technické detaily.
 \subsection{Popis ovládání}
@@ -62,7 +62,7 @@ Celý projekt se ovládá za pomoci tlačítek, která jsou součástí fitkitu.
     \hline
     \textcolor{red}{1} & \textcolor{red}{2} & \textcolor{red}{3} & A \\ \hline
     4 & 5 & 6 & B \\ \hline
-    7 & 8 & 9 & C \\ \hline
+    7 & \textcolor{red}{8} & \textcolor{red}{9} & \textcolor{red}{C} \\ \hline
     * & \textcolor{red}{0} & \textcolor{red}{\#} & D \\
     \hline
   \end{tabular}
@@ -72,15 +72,70 @@ Celý projekt se ovládá za pomoci tlačítek, která jsou součástí fitkitu.
 \end{minipage}
 
 
-
-Jejich skutečnou podobnu lze vidět na obrázku v následující sekci popisující schéma zapojení zapojení. Klávesy označené červenou barvou jsou využity pro ovládání aplikace, klávesy zobrazení černou barvou se momentálně nevyužívají.
+Jejich skutečnou podobu lze vidět na obrázku[\ref{foto}] v následující sekci popisující schéma zapojení zapojení. Klávesy označené červenou barvou jsou využity pro ovládání aplikace, klávesy zobrazení černou barvou se momentálně nevyužívají.
 
 Klávesy \textit{1,2,3} slouží pro zobrazení třech počátečních konfigurací, které jsou nastaveny přímo v kódu. Při stisknutí jednoho z těchto tlačítek se současné zobrazování zastaví a dojde k načtení příslušného výchozího stavu.
 
 Klávesy \textit{0} a \textit{\#} slouží pro ovládání běhu aplikace. Klávesa \textit{0} funguje jako \textit{pause/play}. Klávesa \textit{\#} slouží v režimu pause jako tlačítko pro krokování, které posune hru o jeden krok vpřed.
 
+Klávsesy \textit{8} a \textit{9} slouží pro přepínání mezi režimem 8-mi okolí a 9-ti okolí. Rozdíl mezi těmito módy spočívá v tom, že v 9-ti okolí je to okolí buňky počítána i buňka samotná.
+
+Většina výše zmíněných kláves též jako vedlejší jev vypíše nějaký text na LCD display kitu. Pro smazání totoho texto slouží klávesa \textit{C}, vymaže obsah displaye.
+
 \subsection{Schéma zapojení}
-Maticový display je připojen přímo na porty mikrokontroléru. Ten jej přes tyto porty ovládá. Zapojení můžete vidět na následujícím obrázku.
+Maticový display je připojen přímo na porty mikrokontroléru. Ten jej přes tyto porty ovládá. Zapojení můžete vidět v následující tabulce. 
+
+\begin{minipage}{\linewidth}
+\bigskip
+\centering
+  \begin{tabular}{ | l | l|}
+    \hline
+    Řádek & Port \\ \hline
+    0 & P6M0 \\ \hline
+    1 & P6M1  \\ \hline
+    2 & P6M2 \\ \hline
+	3 & P6M3 \\ \hline
+	4 & P6M4 \\ \hline
+	5 & P6M5 \\ \hline
+	6 & P6M6 \\ \hline
+    7 & P6M7  \\
+    \hline
+  \end{tabular}
+  \begin{tabular}{ | l | l|}
+    \hline
+    Sloupec & Port \\ \hline
+    0 & P4M0 \\ \hline
+    1 & P4M1  \\ \hline
+    2 & P4M2 \\ \hline
+	3 & P4M3 \\ \hline
+	4 & P4M4 \\ \hline
+	5 & P4M5 \\ \hline
+	6 & P1M4 \\ \hline
+    7 & P2M5  \\
+    \hline
+  \end{tabular}
+  \captionof{figure}{Připojení portů na display} \label{fitkit:display}
+
+\bigskip
+\end{minipage}
+
+Jelikož displeji nabízí možnost svítit dvěma různými barvami a není z dokumentace přesně definováno přesný význam všech 24  pinů, bylo potřeba experimentálně ověřit, jak displej funguje a přiřadit jednotlivým pinům jejich význam. Z dvou možných barev zvolil autor červenou pro její větší výraznost. Výsledné znalosti o displeji můžete vidět na následujícím obrázku, \textit{C} značí sloupce, \textit{R} značí řádky.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{display}
+\captionof{figure}{Popis využitých portů displaye} \label{display}
+\end{figure}
+
+
+
+Pro větší názornost je též přiložen obrázek samotného zapojení.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{fitkit}
+\captionof{figure}{Příklad skutečného zapojení} \label{foto}
+\end{figure}
 
 \subsection{Popis způsobu řešení}
 Stav programu je uchováván v globálních proměnných. Nejdůležitější proměnné jsou pole 8x8 \textit{cells} reprezentující současný stav a také proměnná boolovského typu \textit{isRunning} určující, zda se simulace má sama chýbat kupředu či nikoliv. Hlavní funkce main nainicialuzuje mcu i fpga, povolí přerušení od klávesnice a časovače. Následně také vybere defaulní výchozí konfiguraci pro hru a přejde do nekonečné smyčky, ve které obsluhuje terminál, klávesnici a ovládá maticový display.

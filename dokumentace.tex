@@ -72,15 +72,15 @@ Celý projekt se ovládá za pomoci tlačítek, která jsou součástí fitkitu.
 \end{minipage}
 
 
-Jejich skutečnou podobu lze vidět na obrázku[\ref{foto}] v následující sekci popisující schéma zapojení zapojení. Klávesy označené červenou barvou jsou využity pro ovládání aplikace, klávesy zobrazení černou barvou se momentálně nevyužívají.
+Jejich skutečnou podobu lze vidět na obrázku[\ref{foto}] v následující sekci popisující schéma zapojení zapojení. Klávesy označené červenou barvou jsou využity pro ovládání aplikace, klávesy zobrazené černou barvou se momentálně nevyužívají.
 
 Klávesy \textit{1,2,3} slouží pro zobrazení třech počátečních konfigurací, které jsou nastaveny přímo v kódu. Při stisknutí jednoho z těchto tlačítek se současné zobrazování zastaví a dojde k načtení příslušného výchozího stavu.
 
 Klávesy \textit{0} a \textit{\#} slouží pro ovládání běhu aplikace. Klávesa \textit{0} funguje jako \textit{pause/play}. Klávesa \textit{\#} slouží v režimu pause jako tlačítko pro krokování, které posune hru o jeden krok vpřed.
 
-Klávsesy \textit{8} a \textit{9} slouží pro přepínání mezi režimem 8-mi okolí a 9-ti okolí. Rozdíl mezi těmito módy spočívá v tom, že v 9-ti okolí je to okolí buňky počítána i buňka samotná.
+Klávsesy \textit{8} a \textit{9} slouží pro přepínání mezi režimem 8-mi okolí a 9-ti okolí. Rozdíl mezi těmito módy spočívá v tom, že v 9-ti okolí je do okolí buňky počítána i buňka samotná.
 
-Většina výše zmíněných kláves též jako vedlejší jev vypíše nějaký text na LCD display kitu. Pro smazání totoho texto slouží klávesa \textit{C}, vymaže obsah displaye.
+Většina výše zmíněných kláves též jako vedlejší jev vypíše nějaký text na LCD display kitu. Pro smazání totoho texto slouží klávesa \textit{C},která vymaže obsah displaye.
 
 \subsection{Schéma zapojení}
 Maticový display je připojen přímo na porty mikrokontroléru. Ten jej přes tyto porty ovládá. Zapojení můžete vidět v následující tabulce. 
@@ -119,37 +119,46 @@ Maticový display je připojen přímo na porty mikrokontroléru. Ten jej přes 
 \bigskip
 \end{minipage}
 
-Jelikož displeji nabízí možnost svítit dvěma různými barvami a není z dokumentace přesně definováno přesný význam všech 24  pinů, bylo potřeba experimentálně ověřit, jak displej funguje a přiřadit jednotlivým pinům jejich význam. Z dvou možných barev zvolil autor červenou pro její větší výraznost. Výsledné znalosti o displeji můžete vidět na následujícím obrázku, \textit{C} značí sloupce, \textit{R} značí řádky.
+Jelikož displej nabízí možnost svítit dvěma různými barvami a není z dokumentace přesně definován přesný význam všech 24  pinů, bylo potřeba experimentálně ověřit, jak displej funguje, a přiřadit jednotlivým pinům jejich význam. Z dvou možných barev zvolil autor červenou pro její větší výraznost. Výsledné znalosti o displeji můžete vidět na následujícím obrázku, \textit{C} značí sloupce, \textit{R} značí řádky.
 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{display}
-\captionof{figure}{Popis využitých portů displaye} \label{display}
+\captionof{figure}{Popis využitých portů displaye, černá úsečka značí stěnu, na které je napsán typ displaje} \label{display}
 \end{figure}
 
 
 
-Pro větší názornost je též přiložen obrázek samotného zapojení.
+Pro větší názornost jsou též přiloženy dva obrázky samotného zapojení.
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.5]{fitkit}
+\includegraphics[scale=0.1]{fitkit}
 \captionof{figure}{Příklad skutečného zapojení} \label{foto}
 \end{figure}
 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.1]{fitkit2}
+\captionof{figure}{Příklad skutečného zapojení - detail na displaj} \label{foto2}
+\end{figure}
+
 \subsection{Popis způsobu řešení}
-Stav programu je uchováván v globálních proměnných. Nejdůležitější proměnné jsou pole 8x8 \textit{cells} reprezentující současný stav a také proměnná boolovského typu \textit{isRunning} určující, zda se simulace má sama chýbat kupředu či nikoliv. Hlavní funkce main nainicialuzuje mcu i fpga, povolí přerušení od klávesnice a časovače. Následně také vybere defaulní výchozí konfiguraci pro hru a přejde do nekonečné smyčky, ve které obsluhuje terminál, klávesnici a ovládá maticový display.
+Stav programu je uchováván v globálních proměnných. Nejdůležitější proměnné jsou pole 8x8 \textit{cells} reprezentující současný stav a také proměnná boolovského typu \textit{isRunning} určující, zda se simulace má sama chýbat kupředu či nikoliv. Hlavní funkce main nainicialuzuje mcu i fpga a povolí přerušení od časovače. Následně také vybere defaultní výchozí konfiguraci pro hru a přejde do nekonečné smyčky, ve které obsluhuje terminál, klávesnici a také ovládá displej.
 
-Řízení běho programu je prováděno s využitím přerušení. Prvním přerušením je přerušení od časovače, které je generováno s frekvencí XYZ Hz a které v případě, že proměnná \textit{isRunning} má hodnotu \textit{true}, vypočítá novou generaci a výsledek uloží do \textit{cells}.
+Řízení běho programu je prováděno s využitím přerušení. Využívá se přerušení od časovače, které je generováno s frekvencí XYZ Hz a které v případě, že proměnná \textit{isRunning} má hodnotu \textit{true}, vypočítá novou generaci a výsledek uloží do \textit{cells}.
 
 
-Pokud byla stistknuta klávesa, která má v aplikace definovaný význam, je provedena rutina ošetřující stisk dané klávesy.
-Stisknutí klávesy \textit{0} pouze invertuje hodnotu proměnné \textit{isRunning}, čímž zastaví automatické posunování vpřed. Stiskutí klávesy \textit{\#} v režimu \textit{pause} provede posunutí o jeden krok vpřed. Klávesy \textit{1,2,3} bez ohledu na situaci nastaví \textit{isRunning} a poté načtou příslušnou počáteční konfiruraci do \textit{cells}.
+Pokud byla stistknuta klávesa, která má v aplikaci definovaný význam, je provedena rutina ošetřující stisk dané klávesy.
+Stisknutí klávesy \textit{0} pouze invertuje hodnotu proměnné \textit{isRunning}, čímž zastaví či spuustí automatické posunování vpřed. Stiskutí klávesy \textit{\#} v režimu \textit{pause} provede posunutí o jeden krok vpřed. Klávesy \textit{1,2,3} bez ohledu na situaci nastaví \textit{isRunning} na false a poté načtou příslušnou počáteční konfiruraci do \textit{cells}.
 
-Samotné přepočítávání probíhá dvouprůchodově. V prvním průchodu dojde k výpočtu nových hodnot, v druhém průchodu se hodnoty buněk aktualizují.
+Klávesy \textit{8} a \textit{9} umožnují přepínat mezi 8-mi okolím a 9-ti okolím .
+
+Samotné vypočítání nové generace probíhá dvouprůchodově. V prvním průchodu dojde k výpočtu nových hodnot do pomocné tabulky, v druhém průchodu se tyto hodnoty přepíší do hlavní tabulky.
 
 \section{Závěrečné shrnutí}
-V tomto projektu byla implementována hra Life(celuární automat) s využitím fitkitu a externího maticového displaye. Projekt obsahuje tři výchozí kofigurace, běh je možno pozastavit a krokovat. Ze zadání byly splněny všechny body. Jako možné rozšíření se jeví například možnost ovládat aplikaci z terminálu, konkrétně autor navrhuje možnost pomocí speciálního příkazu zvolit počáteční konfiguraci. Vzhledem k časovému presu ovšem toto rozšíření nebylo implementováno.
+V tomto projektu byla implementována hra Life(celuární automat) s využitím fitkitu a externího maticového displeje. Projekt obsahuje tři výchozí kofigurace, běh je možno pozastavit a krokovat. Ze zadání byly splněny všechny body. Jako možné rozšíření se jeví například možnost ovládat aplikaci z terminálu, konkrétně autor navrhuje možnost pomocí speciálního příkazu zvolit počáteční konfiguraci. Vzhledem k časovému presu ovšem toto rozšíření nebylo implementováno. Demonstraci projektu můžete vidět na videích \ref{video9neighbour} a \ref{video8neighbour}.
+
 
 \section*{Reference}
 \begin{enumerate}[label={[\arabic*]}]
@@ -165,5 +174,13 @@ V tomto projektu byla implementována hra Life(celuární automat) s využitím 
     \href{http://www.ti.com/lit/ug/slau144j/slau144j.pdf}
          {http://www.ti.com/lit/ug/slau144j/slau144j.pdf}
     \label{msp430}
+\item Ukázka módu 9-ti okolí [cit. 2016-12-09] [Online] \\
+    \href{https://www.youtube.com/watch?v=oLCLrJIVXTk}
+         {https://www.youtube.com/watch?v=oLCLrJIVXTk}
+    \label{video9neighbour}
+\item Ukázka módu 8-ti okolí [cit. 2016-12-09] [Online] \\
+    \href{https://www.youtube.com/watch?v=EAMCaPm-iR4}
+         {https://www.youtube.com/watch?v=EAMCaPm-iR4}
+    \label{video8neighbour}
 \end{enumerate}
 \end{document}

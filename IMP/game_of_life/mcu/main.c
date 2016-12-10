@@ -51,8 +51,14 @@
 #include <keyboard/keyboard.h>
 #include <lcd/display.h>
 
+/**
+* defines the size of the game board
+*/
 #define BOARD_SIZE 8
 
+/**
+* messaged that are shown on the display when user hits some button
+*/
 static const char * welcomeMsg = "Welcome :)";
 static const char * title1 = "E1 - Oscilators";
 static const char * title2 = "E2 - Chaos";
@@ -66,6 +72,9 @@ static const char * set9Neighbour = "9 neighbors mode";
 */
 typedef bool t_cell;
 
+/**
+* structure representing the game field
+*/
 typedef struct {
 	t_cell cells[BOARD_SIZE][BOARD_SIZE];
 } t_board;
@@ -98,12 +107,21 @@ t_board tmp = {
 */
 bool isRunning = false;
 
-bool eightNeighbourMode = false;
+/**
+* true = 8 neighbours, false  = 9 neighbours
+*/
+bool eightNeighbourMode = true;
 
+/**
+*
+*/
 unsigned char currentCol = 254;
 
 char last_ch; //naposledy precteny znak
 
+/**
+* three startting positions
+*/
 t_board startPositions[] =
 {
 	{{
@@ -141,6 +159,12 @@ t_board startPositions[] =
 };
 
 
+/**
+* @param row row
+* @param col col
+* @return cell at indexes specifies by rows and cols
+* the board is circular which means that -1 is considered to be the the last row/col opposite edge of the board
+*/
 t_cell getCell(int row,int col){
   if(row < 0)
     row = BOARD_SIZE - 1;
@@ -155,6 +179,12 @@ t_cell getCell(int row,int col){
     return currentBoard.cells[row][col];
 }
 
+/**
+* counts the number of alive neighbours of a cell at index specified by row and col
+* it uses either 8-neighbour mode or 9-neighbour mode based on the value of eightNeighbourMode
+* @param row row
+* @param col col
+*/
 int countAliveNeighbors(int row,int col){
   int i,j,count = 0;
   for(i = row - 1 ; i < row + 2 ;   i++) {
@@ -168,6 +198,11 @@ int countAliveNeighbors(int row,int col){
   return count;
 }
 
+/**
+* computes next generation of cells
+* iterates over the entire board, stores results in tmp
+* and whn the calculation is finished, it copies them to the main board
+*/
 void computeNextStep(){
   int i,j,count;
   for(i = 0; i < BOARD_SIZE ; i++){
@@ -195,6 +230,11 @@ void computeNextStep(){
   memcpy(&currentBoard,&tmp, sizeof(t_board));
 }
 
+/**
+*sets startPosition of the board
+*@param index shouls be between 0-3
+* there are three start posisions + special 'hello' position
+*/
 void setCellsStart(int index){
   t_board * newBoard = NULL;
   if(index == 0){
@@ -208,8 +248,17 @@ void setCellsStart(int index){
   memcpy(&currentBoard,newBoard,sizeof(t_board));
 }
 
-void print_user_help(void) { }
+/**
+* prints help to the terminal
+*/
+void print_user_help(void) {
+	term_send_str("Hello, sorry, but no commands are suported right now, you have to use the buttons on fitkit");
+}
 
+
+/**
+* decodes command typed into terminal, no command suported now
+*/
 unsigned char decode_user_cmd(char *cmd_ucase, char *cmd)
 {
   return CMD_UNKNOWN;
@@ -219,6 +268,9 @@ void fpga_initialized()
 {
 }
 
+/**
+* routine which lets the user control the app by pressing buttons on fitkit
+*/
 int keyboard_idle()
 {
   char ch;
@@ -247,12 +299,17 @@ int keyboard_idle()
   return 0;
 }
 
+/**
+* peforms left rotation, returns the result
+*/
 unsigned char rol(unsigned char num)
 {
   return ((num << 1) | (num >> (7)));
 }
 
-
+/**
+* debug function which prints only elements at the diagonal
+*/
 void danceOnTheDiagonal(unsigned char column){
   switch(column){
     case 0: P4OUT = 1; P1OUT = 0; break;
@@ -271,6 +328,9 @@ void danceOnTheDiagonal(unsigned char column){
   }
 }
 
+/**
+* set the output pins to light a specified column
+*/
 void preparePinsForCol(unsigned char column){
   int i;
   unsigned char p4 = 0;
@@ -283,6 +343,9 @@ void preparePinsForCol(unsigned char column){
   P1OUT = p1;
 }
 
+/**
+* helper function which lights a specified column based on the value of currentCol
+*/
 void lightCol(){
 
   switch (currentCol) {
@@ -303,12 +366,18 @@ void lightCol(){
   P6OUT = currentCol;
 }
 
+/**
+* debug function, lights all pins
+*/
 void lightItAll(){
   P6OUT = 0;
   P4OUT = 63;
   P1OUT = 48;
 }
 
+/**
+* main function
+*/
 int main(void)
 {
   last_ch = 0;
@@ -342,7 +411,7 @@ int main(void)
     keyboard_idle();  // obsluha klavesnice
     terminal_idle();  // obsluha terminalu
 
-    delay_ms(100);
+    delay_ms(100); // delays a specified amout of time before comuputing the next step
     if(isRunning){
       computeNextStep();
     }

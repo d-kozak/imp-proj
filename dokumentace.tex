@@ -144,10 +144,11 @@ Pro větší názornost jsou též přiloženy dva obrázky samotného zapojení
 \end{figure}
 
 \subsection{Popis způsobu řešení}
-Stav programu je uchováván v globálních proměnných. Nejdůležitější proměnné jsou pole 8x8 \textit{cells} reprezentující současný stav a také proměnná boolovského typu \textit{isRunning} určující, zda se simulace má sama chýbat kupředu či nikoliv. Hlavní funkce main nainicialuzuje mcu i fpga a povolí přerušení od časovače. Následně také vybere defaultní výchozí konfiguraci pro hru a přejde do nekonečné smyčky, ve které obsluhuje terminál, klávesnici a také ovládá displej.
+Stav programu je uchováván v globálních proměnných. Nejdůležitější proměnné jsou pole 8x8 \textit{cells} reprezentující současný stav a také proměnná boolovského typu \textit{isRunning} určující, zda se simulace má sama chýbat kupředu či nikoliv. Hlavní funkce main nainicialuzuje mcu i fpga a povolí přerušení od časovače. Následně také vybere defaultní výchozí konfiguraci pro hru a přejde do nekonečné smyčky, ve které obsluhuje terminál, klávesnici, a případně provádí výpočet nové generace.
 
-Řízení běho programu je prováděno s využitím přerušení. Využívá se přerušení od časovače, které je generováno s frekvencí XYZ Hz a které v případě, že proměnná \textit{isRunning} má hodnotu \textit{true}, vypočítá novou generaci a výsledek uloží do \textit{cells}.
+Ovládání displeje je prováděno s využitím přerušení. Využívá se přerušení od časovače, které je generováno s frekvencí 480 Hz a které slouží k ovládání displaye. Pro lidské oko je optimální 60 Hz, s touto frekvencí je potřeba ovládat všech 8 sloupců displaye, proto je frekvence, s jakou se generuje přerušení, 480 Hz.  
 
+Výpočet nové generace probíhá v rámci nekonečné smyčky ve funkci main. V zadání bylo doporučeno nové generace střídat s frekvencí 5 Hz. Do hlavní smyčky byl tudíž v prvním pokusu umístěn \textit{delay}  o velikosti 200 ms. Nicméně takto velké zdržení způsobovalo, že klávesnice fitkitu nebyla dostatečně responzivní. Proto byl nakonec \textit{delay} snížen na 50 ms. Aby bylo dosaženo cílových 5 Hz, prování se výpočet nové generace pouze v každé čtvrté iteraci.
 
 Pokud byla stistknuta klávesa, která má v aplikaci definovaný význam, je provedena rutina ošetřující stisk dané klávesy.
 Stisknutí klávesy \textit{0} pouze invertuje hodnotu proměnné \textit{isRunning}, čímž zastaví či spuustí automatické posunování vpřed. Stiskutí klávesy \textit{\#} v režimu \textit{pause} provede posunutí o jeden krok vpřed. Klávesy \textit{1,2,3} bez ohledu na situaci nastaví \textit{isRunning} na false a poté načtou příslušnou počáteční konfiruraci do \textit{cells}.

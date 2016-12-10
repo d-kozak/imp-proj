@@ -1,3 +1,11 @@
+/**
+* IMP project 2016 - Game Of Life
+* edited by David Kozak
+* xkozak15 AT stud.fit.vutbr.cz
+* last edit : 11.12.2016
+* changed about 75-85% of the file
+*/
+
 /*******************************************************************************
    main.c: LCD + keyboard demo
    Copyright (C) 2012 Brno University of Technology,
@@ -226,7 +234,6 @@ void computeNextStep(){
         }
     }
   }
-
   memcpy(&currentBoard,&tmp, sizeof(t_board));
 }
 
@@ -390,10 +397,17 @@ int main(void)
 
   setCellsStart(0);
 
-  CCTL0 = CCIE; // enable timer interrupt
-  CCR0 = 0x0040; // next interrupt after about half a second
+	TACTL = TASSEL_1 + MC_2;  // ACLK f = 32786 Hz = 0x8000 Hz
 
-  TACTL = TASSEL_1 + MC_2;  // ACLK f = 32786 Hz = 0x8000 Hz
+
+	// 60Hz is optimal for human eye
+	// we need to change the entire display at that time, it means to show all 8 columns
+	// thats why we need to be 8 times faster
+	// 60 * 8 = 480 Hz
+	// 32786 / 480 = 68.30416666 ~= 68
+  CCR0 = 68;
+
+  CCTL0 = CCIE; // enable timer interrupt
 
   // all pins in port 6 are used
   P6DIR = 255;
@@ -406,21 +420,30 @@ int main(void)
 
   lightItAll();
   LCD_append_string(welcomeMsg);
+
+	int counter = 0;
+
   while (1)
   {
     keyboard_idle();  // obsluha klavesnice
     terminal_idle();  // obsluha terminalu
 
-    delay_ms(100); // delays a specified amout of time before comuputing the next step
-    if(isRunning){
-      computeNextStep();
-    }
+
+		// next gen frequency is supposed to be 5 Hz
+		// which means five generations per second
+		// 1000 / 5 = 200
+		// but 200ms is too long, humans can click faster
+		// that is why delay of 50 ms and computing on every 4 iteration
+    delay_ms(50);
+		if((counter++ % 4 == 0) && isRunning){
+			computeNextStep();
+		}
   }
 }
 
 interrupt (TIMERA0_VECTOR) Timer_A (void)
 {
-  currentCol = rol(currentCol);
-  lightCol();
-  CCR0 += 0x0040; // plan next interrupt
+	currentCol = rol(currentCol);
+	lightCol();
+  CCR0 += 68; // plan next interrupt
 }
